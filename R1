@@ -1,0 +1,65 @@
+conf t
+interface gigabitEthernet 0/1
+ip address 192.168.1.1 255.255.255.0
+no shutdown
+exit
+interface gigabitEthernet 0/0
+ip address 10.1.1.1 255.255.255.252
+no shutdown
+exit
+router ospf 1
+network 192.168.1.0 0.0.0.255 area 0
+network 10.1.1.0 0.0.0.3 area 0
+exit
+security passwords min-length 10
+enable algorithm-type scrypt secret cisco12345
+line console 0
+password ciscoconpass
+exec-timeout 5 0
+login
+logging synchronous
+exit
+line aux 0
+password ciscoauxpass
+exec-timeout 5 0
+login
+exit
+line vty 0 4
+password ciscovtypass
+exec-timeout 5 0
+transport input telnet
+login
+exit
+service password-encryption
+banner motd #Unauthorized access is strictly prohibited!#
+exit
+username user01 algorithm-type scrypt secret user01pass
+line console 0
+login local
+exit
+line vty 0 4
+login local
+exit
+line aux 0
+login local
+exit
+username user01 algorithm-type scrypt secret user01pass
+username Admin01 privilege 15 algorithm-type scrypt secret
+Admin01pass
+line console 0
+login local
+exit
+line vty 0 4
+login local
+exit
+line aux 0
+login local
+exit
+
+aaa new-model
+aaa authentication login default group radius none
+radius server CCNAS
+address ipv4 192.168.1.3
+key WinRadius
+end
+address ipv4 192.168.1.3 auth-port 1812 acct-port 1813
